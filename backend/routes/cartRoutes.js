@@ -9,6 +9,8 @@ import {
   getCarts,
 } from '../controllers/cartControllers.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import { addCartItemsValidator, updateCartItemValidator, deleteCartItemValidator } from '../validators/cartValidator.js'; // Adjust the path as needed
+import { validate } from '../middleware/validateMiddleware.js'; // This middleware checks for validation errors
 
 const router = express.Router();
 
@@ -20,17 +22,17 @@ const cartLimiter = rateLimit({
 });
 
 router.route('/')
-  .post(protect, cartLimiter, addCartItems)
+  .post(protect, cartLimiter, addCartItemsValidator, validate, addCartItems) // Added validators
   .get(protect, admin, cartLimiter, getCarts);
 
 router.route('/mycart').get(protect, cartLimiter, getMyCart);
 
 router.route('/:id')
   .get(protect, cartLimiter, getCartById)
-  .put(protect, cartLimiter, updateCartItem);
+  .put(protect, cartLimiter, updateCartItemValidator, validate, updateCartItem); // Added validators
 
 router.route('/:cartId/item/:itemId')
-  .put(protect, cartLimiter, updateCartItem)
-  .delete(protect, cartLimiter, deleteCartItem);
+  .put(protect, cartLimiter, updateCartItemValidator, validate, updateCartItem) // Added validators
+  .delete(protect, cartLimiter, deleteCartItemValidator, validate, deleteCartItem); // Added validators
 
 export default router;

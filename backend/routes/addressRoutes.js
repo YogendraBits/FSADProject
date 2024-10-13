@@ -7,6 +7,8 @@ import {
   updateAddress,
   deleteAddress,
 } from '../controllers/addressController.js';
+import { createAddressValidator, updateAddressValidator } from '../validators/addressValidator.js'; // Adjust the path as needed
+import { validate } from '../middleware/validateMiddleware.js'; // This middleware checks for validation errors
 
 const router = express.Router();
 
@@ -19,10 +21,10 @@ const addressLimiter = rateLimit({
 
 router.route('/')
   .get(protect, addressLimiter, getAddresses)
-  .post(protect, addressLimiter, createAddress);
+  .post(protect, addressLimiter, createAddressValidator, validate, createAddress); // Added validators
 
 router.route('/:id')
-  .put(protect, addressLimiter, updateAddress)
+  .put(protect, addressLimiter, updateAddressValidator, validate, updateAddress) // Added validators
   .delete(protect, addressLimiter, deleteAddress);
 
 export default router;

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import {
     WISHLIST_REQUEST,
     WISHLIST_SUCCESS,
@@ -7,7 +7,6 @@ import {
     WISHLIST_REMOVE_ITEM,
 } from '../constants/wishlistConstants';
 
-
 // Fetch Wishlist
 export const fetchWishlist = (pageNumber = 1) => async (dispatch, getState) => {
     try {
@@ -15,13 +14,7 @@ export const fetchWishlist = (pageNumber = 1) => async (dispatch, getState) => {
 
         const { userLogin: { userInfo } } = getState();
 
-        const config = {
-            headers: {
-                Authorization: `Bearer ${userInfo.token}`,
-            },
-        };
-
-        const { data } = await axios.get(`/api/wishlist?page=${pageNumber}`, config);
+        const { data } = await axiosInstance.get(`/wishlist?page=${pageNumber}`);
 
         dispatch({
             type: WISHLIST_SUCCESS,
@@ -37,7 +30,6 @@ export const fetchWishlist = (pageNumber = 1) => async (dispatch, getState) => {
     }
 };
 
-
 // Add an item to the wishlist
 export const addTowishlist = (productId, qty) => async (dispatch, getState) => {
     const { userInfo } = getState().userLogin;
@@ -48,13 +40,9 @@ export const addTowishlist = (productId, qty) => async (dispatch, getState) => {
     }
 
     try {
-        const { data } = await axios.post('/api/wishlist', {
+        const { data } = await axiosInstance.post('/wishlist', {
             productId,
             quantity: qty,
-        }, {
-            headers: {
-                Authorization: `Bearer ${userInfo.token}`,
-            },
         });
 
         // Assuming API returns the updated wishlist
@@ -67,9 +55,6 @@ export const addTowishlist = (productId, qty) => async (dispatch, getState) => {
     }
 };
 
-
-
-
 // Remove an item from the wishlist
 export const removeFromwishlist = (itemId) => async (dispatch, getState) => {
     const { userInfo } = getState().userLogin;
@@ -80,11 +65,7 @@ export const removeFromwishlist = (itemId) => async (dispatch, getState) => {
     }
 
     try {
-        await axios.delete(`/api/wishlist/${itemId}`, {
-            headers: {
-                Authorization: `Bearer ${userInfo.token}`,
-            },
-        });
+        await axiosInstance.delete(`/wishlist/${itemId}`);
 
         // Dispatch remove action with the item ID directly to update the state
         dispatch({

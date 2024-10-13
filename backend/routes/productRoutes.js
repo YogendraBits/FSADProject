@@ -12,6 +12,13 @@ import {
   deleteProductReview,
 } from '../controllers/productControllers.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
+import {
+  createProductValidator,
+  updateProductValidator,
+  createProductReviewValidator,
+  updateProductReviewValidator,
+} from '../validators/productValidator.js'; // Adjust the path as needed
+import { validate } from '../middleware/validateMiddleware.js'; // Middleware to check for validation errors
 
 const router = express.Router();
 
@@ -24,20 +31,20 @@ const reviewLimiter = rateLimit({
 
 router.route('/')
   .get(getProducts)
-  .post(protect, admin, createProduct);
+  .post(protect, admin, createProductValidator, validate, createProduct); // Added validators
 
 router.route('/:id/reviews')
-  .post(protect, reviewLimiter, createProductReview);
+  .post(protect, reviewLimiter, createProductReviewValidator, validate, createProductReview); // Added validators
 
 router.route('/top').get(getTopProducts);
 
 router.route('/:id')
   .get(getProductById)
   .delete(protect, admin, deleteProduct)
-  .put(protect, admin, updateProduct);
+  .put(protect, admin, updateProductValidator, validate, updateProduct); // Added validators
 
 router.route('/:id/reviews/:reviewId')
-  .put(protect, reviewLimiter, updateProductReview)
-  .delete(protect, reviewLimiter, deleteProductReview);
+  .put(protect, reviewLimiter, updateProductReviewValidator, validate, updateProductReview) // Added validators
+  .delete(protect, reviewLimiter, deleteProductReview); // No validation needed here since ID is in the URL
 
 export default router;

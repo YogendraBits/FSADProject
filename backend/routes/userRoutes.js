@@ -12,7 +12,12 @@ import {
   deleteOwnAccount,
 } from '../controllers/userControllers.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
-
+import {
+  registerUserValidator,
+  updateUserProfileValidator,
+  userIdValidator,
+} from '../validators/userValidator.js'; // Adjust the path as needed
+import { validate } from '../middleware/validateMiddleware.js'; // Middleware to check for validation errors
 
 const router = express.Router();
 
@@ -26,17 +31,17 @@ const loginLimiter = rateLimit({
 router.post('/login', loginLimiter, authUsers);
 
 router.route('/')
-  .post(registerUser)
+  .post(registerUserValidator, validate, registerUser) // Added validators
   .get(protect, admin, getUser);
 
 router.route('/profile')
   .get(protect, getUserProfile)
-  .put(protect, updateUserProfile)
+  .put(protect, updateUserProfileValidator, validate, updateUserProfile) // Added validators
   .delete(protect, deleteOwnAccount);
 
 router.route('/:id')
-  .delete(protect, admin, deleteUser)
-  .get(protect, admin, getUserById)
-  .put(protect, admin, updateUser);
+  .delete(protect, admin, userIdValidator, validate, deleteUser) // Added validators
+  .get(protect, admin, userIdValidator, validate, getUserById) // Added validators
+  .put(protect, admin, userIdValidator, validate, updateUser); // Added validators
 
 export default router;
